@@ -15,16 +15,24 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.e("TAG", "result is " + getCurrentTime())
-
+        Log.e("TAG", "time is " + getCurrentTime())
         //协程的特性是代码中调用一次 实际会执行2次 第一次如果不满足条件先return一个状态  当满足条件的时候线程池会回调该方法执行第二次
-        //协程代码
-        //suspend fun foo() :Any{
-        //  delay(3000L)
-        //   val value =getCurrentTime()
-        //   Log.e("TAG", "result is $value")
-        //}
-        //等价代码
+        GlobalScope.launch(Dispatchers.Main){
+            //延迟3秒出结果
+            foo()
+        }
+        Log.e("TAG", "不等foo完成也能继续执行")
+    }
+
+
+    //协程代码
+    //suspend fun foo() :Any{
+    //  delay(3000L)
+    //   val value =getCurrentTime()
+    //   Log.e("TAG", "result is $value")
+    //}
+    //等价代码
+    @suspend fun foo() {
         foo(object : Continuation<Any> {
             override fun resumeWith(result: Result<Any>) {
                 val value = result.getOrThrow()
@@ -33,8 +41,7 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    fun foo(continuation: Continuation<Any>): Any {
-        // In effect, state machines sub-classes kotlin.coroutines.jvm.internal.ContinuationImpl.
+    @suspend fun foo(continuation: Continuation<Any>): Any {
         class FooContinuation : Continuation<Any> {
             var label: Int = 0
 
