@@ -1,5 +1,7 @@
 package com.example.coroutines
 
+import android.os.Looper
+
 
 public object GlobalScope : CoroutineScope {
 
@@ -13,7 +15,11 @@ public fun CoroutineScope.launch(
 ) {
     when (context) {
         is Dispatchers.MainDispatcher -> {
-            AppExecutors.newInstance().mainThread().execute {
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                AppExecutors.newInstance().mainThread().execute {
+                    block()
+                }
+            } else {
                 block()
             }
         }
