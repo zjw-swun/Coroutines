@@ -16,11 +16,11 @@ public fun CoroutineScope.launch(
     when (context) {
         is Dispatchers.MainDispatcher -> {
             if (Looper.myLooper() == Looper.getMainLooper()) {
+                block()
+            } else {
                 AppExecutors.newInstance().mainThread().execute {
                     block()
                 }
-            } else {
-                block()
             }
         }
         is Dispatchers.IODispatcher -> {

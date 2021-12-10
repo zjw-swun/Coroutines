@@ -42,10 +42,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     @suspend fun foo(continuation: Continuation<Any>): Any {
+        val currentTime = getCurrentTime()
+        Log.e("TAG", "foo 调用时间 is " + currentTime)
+
         class FooContinuation : Continuation<Any> {
             var label: Int = 0
 
             override fun resumeWith(result: Result<Any>) {
+                Log.e("TAG", "resumeWith 方法内部类可以拿到上下文局部变量 " + currentTime)
+
                 val outcome = invokeSuspend()
                 if (outcome === COROUTINE_SUSPENDED) return
                 continuation.resume(result.getOrThrow())
@@ -57,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val cont = (continuation as? FooContinuation) ?: FooContinuation()
+
         return when (cont.label) {
             0 -> {
                 cont.label++
